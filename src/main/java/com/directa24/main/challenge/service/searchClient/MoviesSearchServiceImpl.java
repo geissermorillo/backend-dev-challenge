@@ -4,7 +4,6 @@ import com.directa24.main.challenge.dto.movie.MovieRecord;
 import com.directa24.main.challenge.dto.movie.MoviesSearchResults;
 import com.directa24.main.challenge.service.httpClient.IHttpClientService;
 
-import java.net.http.HttpResponse;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -27,17 +26,21 @@ public class MoviesSearchServiceImpl implements ISearchService<MovieRecord> {
         // This is a light request to determine the total amount of pages for querying then all in order to get all
         // the records, we pass 0 because with this page we get pagination information without bringing data, which
         // improves the performance.
-        HttpResponse<MoviesSearchResults> resultsHttpResponse = this.httpClientService
-                .executeGet(this.buildSearchURLFromPageNumber(PAGE_NUMBER_FOR_LIGHT_REQUEST), MoviesSearchResults.class);
+        MoviesSearchResults moviesSearchResults = getMoviesByPageNumber(PAGE_NUMBER_FOR_LIGHT_REQUEST);
 
-        IntStream.range(1, resultsHttpResponse.body().getTotalPages() + 1)
+        IntStream.range(1, moviesSearchResults.getTotalPages() + 1)
                 .forEach(pageNumber -> {
-                    HttpResponse<MoviesSearchResults> response = this.httpClientService
-                            .executeGet(this.buildSearchURLFromPageNumber(pageNumber), MoviesSearchResults.class);
-                    movies.addAll(response.body().getMovies());
+                    MoviesSearchResults response = getMoviesByPageNumber(pageNumber);
+                    movies.addAll(response.getMovies());
                 });
 
         return movies;
+    }
+
+    private MoviesSearchResults getMoviesByPageNumber(int pageNumber) {
+        return this.httpClientService
+                .executeGet(this.buildSearchURLFromPageNumber(pageNumber), MoviesSearchResults.class)
+                .body();
     }
 
     private String buildSearchURLFromPageNumber(int pageNumber) {
