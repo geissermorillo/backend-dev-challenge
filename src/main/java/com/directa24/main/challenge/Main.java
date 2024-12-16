@@ -47,7 +47,7 @@ public class Main {
        Set<MovieRecord> moviesSearchResults = moviesSearchService.searchAllMovies();
 
        if (moviesSearchResults.isEmpty()) {
-           return new LinkedHashSet<>();
+           return new TreeSet<>();
        }
 
        Map<String, Integer> amountOfMoviesByDirector = new HashMap<>();
