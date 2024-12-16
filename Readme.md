@@ -76,3 +76,15 @@ The solution can be shared via .zip file or sharing a github repository url via 
 - Bonus Points: Does the candidate implement any of the bonus features or additional
 best practices?
 - Describe on Readme.md if any improvement was left out and why
+
+#### Improvements I think could be done
+- The implementation of method searchAllMovies in class MoviesSearchServiceImpl could be improved define some kind of 
+limitation by the total amount of data because if we were working with thousands of records we would be doing hundreds 
+or thousands of request (one for each page) also keeping all these records in memory could cause problems with the 
+performance due to the memory usage. in order to define a better solution here it is needed to know more about business
+needs and maybe have more documentation about the API we're using to bring the data, this API may have some possible 
+params to get some extra the details about directors by simply passing them in the request.
+- constant MOVIES_API_BASE_SEARCH_URL from class MoviesSearchServiceImpl could be in a .properties file in order to 
+avoid having it hardcoded in the code base.
+- Add some custom exceptions for better handling according business rules.
+- Add Unit/Integration Tests

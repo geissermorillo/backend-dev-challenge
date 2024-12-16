@@ -1,12 +1,36 @@
 package com.directa24.main.challenge;
 
-import java.util.List;
+import com.directa24.main.challenge.dto.movie.MovieRecord;
+import com.directa24.main.challenge.dto.movie.MoviesSearchResults;
+import com.directa24.main.challenge.service.httpClient.HttpClientServiceImpl;
+import com.directa24.main.challenge.service.httpClient.IHttpClientService;
+import com.directa24.main.challenge.service.searchClient.MoviesSearchServiceImpl;
+
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Main {
 
+   private static final IHttpClientService<MoviesSearchResults> moviesHttpClient = new HttpClientServiceImpl<>();
+
    public static void main(String[] args) {
-      List<String> directors = getDirectors(3);
-      System.out.println(String.join("\n", directors));
+      IntStream.range(0, 8)
+              .forEach(threshold -> {
+                  Set<String> directors = getDirectors(threshold);
+                  if (directors.isEmpty()) {
+                     System.out.println(String.format("\nNo directors more movies than: %s\n\t", threshold));
+                  } else {
+                     System.out.println(
+                                 String.format("\nDirectors with more movies than: %s\n\t", threshold) +
+                                         String.join("\n\t", directors));
+                     }
+                  }
+              );
    }
 
    /*
@@ -18,8 +42,26 @@ public class Main {
     * URL
     * https://directa24-movies.mocklab.io/api/movies/search?page=<pageNumber>
     */
-   public static List<String> getDirectors(int threshold) {
-      return null;
-   }
+   public static Set<String> getDirectors(int threshold) {
+       MoviesSearchServiceImpl moviesSearchService = new MoviesSearchServiceImpl(moviesHttpClient);
+       Set<MovieRecord> moviesSearchResults = moviesSearchService.searchAllMovies();
 
+       if (moviesSearchResults.isEmpty()) {
+           return new LinkedHashSet<>();
+       }
+
+       Map<String, Integer> amountOfMoviesByDirector = new HashMap<>();
+
+       moviesSearchResults.stream()
+               .map(MovieRecord::getDirector)
+               .forEach(director ->
+                       amountOfMoviesByDirector.put(director,
+                               amountOfMoviesByDirector.getOrDefault(director, 0) + 1)
+               );
+
+       return amountOfMoviesByDirector.entrySet().stream()
+               .filter(entry -> entry.getValue() > threshold)
+               .map(Map.Entry::getKey)
+               .collect(Collectors.toCollection(TreeSet::new));
+   }
 }
