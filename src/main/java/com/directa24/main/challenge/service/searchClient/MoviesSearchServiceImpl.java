@@ -13,6 +13,7 @@ public class MoviesSearchServiceImpl implements ISearchService<MovieRecord> {
 
     private static final String MOVIES_API_BASE_SEARCH_URL = "https://eron-movies.wiremockapi.cloud/api/movies/search";
     private static final String PAGE_PARAM_NAME = "page";
+    public static final int PAGE_NUMBER_FOR_LIGHT_REQUEST = 0;
 
     private final IHttpClientService<MoviesSearchResults> httpClientService;
 
@@ -23,8 +24,11 @@ public class MoviesSearchServiceImpl implements ISearchService<MovieRecord> {
     @Override
     public Set<MovieRecord> searchAllMovies() {
         LinkedHashSet<MovieRecord> movies = new LinkedHashSet<>();
+        // This is a light request to determine the total amount of pages for querying then all in order to get all
+        // the records, we pass 0 because with this page we get pagination information without bringing data, which
+        // improves the performance.
         HttpResponse<MoviesSearchResults> resultsHttpResponse = this.httpClientService
-                .executeGet(this.buildSearchURLFromPageNumber(0), MoviesSearchResults.class);
+                .executeGet(this.buildSearchURLFromPageNumber(PAGE_NUMBER_FOR_LIGHT_REQUEST), MoviesSearchResults.class);
 
         IntStream.range(1, resultsHttpResponse.body().getTotalPages() + 1)
                 .forEach(pageNumber -> {

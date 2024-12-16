@@ -1,6 +1,7 @@
 package com.directa24.main.challenge.dto.movie;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +9,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
+@EqualsAndHashCode
 public class MovieRecord implements Serializable {
     private static final long serialVersionUID = 2771295271835709315L;
 
